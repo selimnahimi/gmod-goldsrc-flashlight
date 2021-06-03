@@ -1,0 +1,11 @@
+{
+	"title"		:	"GoldSource Flashlight",
+	"type"		:	"addon",
+	"tags"		:	[ "fun" ],
+	"ignore"	:
+	[
+		"*.psd",
+		"*.vcproj",
+		"*.svn*"
+	]
+}
