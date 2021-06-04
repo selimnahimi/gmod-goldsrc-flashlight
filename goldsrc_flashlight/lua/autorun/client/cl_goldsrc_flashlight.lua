@@ -4,6 +4,18 @@ CreateClientConVar( "gsrc_flashlight_mode", "hl1", true, false)
 CreateClientConVar( "gsrc_flashlight_nv_grain", "1", true, false)
 CreateClientConVar( "gsrc_flashlight_snap", "1", true, false)
 
+local function IsEnabled()
+    return GetConVar("gsrc_flashlight_enabled"):GetBool()
+end
+
+local function IsNVG()
+    local value = GetConVar("gsrc_flashlight_mode"):GetString()
+    if (value == "cs16" or value == "op4") then return true end
+
+    return false
+end
+
+
 sounds = {
     ["cs16"] = {
         "gsrc/items/cs_nvg_on.wav",
@@ -45,12 +57,26 @@ end)
 local traceBlackList = {
 }
 
-function traceSight()
+local function traceSight()
     return util.TraceLine( {
         start = LocalPlayer():EyePos(),
         endpos = LocalPlayer():EyePos() + LocalPlayer():GetAimVector() * 10000,
         filter = function( ent ) if ( ent != LocalPlayer() and !traceBlackList[ent:GetClass()] ) then return true end end
     } )
+end
+
+local function createFlashlight(pos, size, brightness)
+    local dlight = DynamicLight( LocalPlayer():EntIndex() )
+	if ( !dlight ) then return end
+
+    dlight.pos = pos
+    dlight.r = 255
+    dlight.g = 255
+    dlight.b = 255
+    dlight.brightness = brightness
+    dlight.Decay = 10000
+    dlight.Size = size
+    dlight.DieTime = CurTime() + 1
 end
 
 hook.Add( "Think", "Think_Lights!", function()
@@ -78,20 +104,6 @@ hook.Add( "Think", "Think_Lights!", function()
     end
 end )
 
-function createFlashlight(pos, size, brightness)
-    local dlight = DynamicLight( LocalPlayer():EntIndex() )
-	if ( !dlight ) then return end
-
-    dlight.pos = pos
-    dlight.r = 255
-    dlight.g = 255
-    dlight.b = 255
-    dlight.brightness = brightness
-    dlight.Decay = 10000
-    dlight.Size = size
-    dlight.DieTime = CurTime() + 1
-end
-
 local nvg_colors = {
 	[ "$pp_colour_addr" ] = 0,
 	[ "$pp_colour_addg" ] = 0.5,
@@ -117,14 +129,3 @@ hook.Add( "RenderScreenspaceEffects", "color_modify_example", function()
     end
 
 end )
-
-function IsNVG()
-    local value = GetConVar("gsrc_flashlight_mode"):GetString()
-    if (value == "cs16" or value == "op4") then return true end
-
-    return false
-end
-
-function IsEnabled()
-    return GetConVar("gsrc_flashlight_enabled"):GetBool()
-end

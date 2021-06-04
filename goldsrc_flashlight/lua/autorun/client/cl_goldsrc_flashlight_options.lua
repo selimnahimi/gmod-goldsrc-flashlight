@@ -13,6 +13,5 @@ hook.Add( "PopulateToolMenu", "CustomMenuSettings", function()
         combobox:AddChoice("Half-Life 1 flashlight", "hl1")
         combobox:AddChoice("Opposing Force night vision", "op4")
         combobox:AddChoice("Counter-Strike 1.6 night vision", "cs16")
-		-- Add stuff here
 	end )
 end )

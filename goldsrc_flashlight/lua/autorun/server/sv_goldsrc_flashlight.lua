@@ -4,6 +4,10 @@ CreateConVar("gsrc_flashlight_enabled", "1", FCVAR_REPLICATE, "Enable/Disable th
 CreateConVar("gsrc_flashlight_size", "150", FCVAR_REPLICATE, "The size of the flashlight")
 CreateConVar("gsrc_flashlight_brightness", "2", FCVAR_REPLICATE, "The brightness of the flashlight")
 
+local function IsEnabled()
+    return GetConVar("gsrc_flashlight_enabled"):GetBool()
+end
+
 flashlightList = {
 
 }
@@ -29,7 +33,3 @@ hook.Add( "PlayerSwitchFlashlight", "BlockFlashLight", function( ply, enabled )
 
     return false
 end )
-
-function IsEnabled()
-    return GetConVar("gsrc_flashlight_enabled"):GetBool()
-end
