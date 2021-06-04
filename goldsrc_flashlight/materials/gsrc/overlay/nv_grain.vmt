@@ -1,0 +1,19 @@
+"Modulate"
+{
+	"$basetexture" "gsrc/overlay/nv_grain"
+	"$znearer" 1
+	"$translucent" "1"
+	"$additive" "1"
+
+	"$basetexturetransform" "[7 0 0 0 0 7 0 0 0 0 1 0 0 0 0 1]"
+
+	"Proxies"
+	{
+		"AnimatedTexture"
+		{
+			"animatedTextureVar" "$basetexture"
+			"animatedTextureFrameNumVar" "$frame"
+			"animatedTextureFrameRate" "100"
+		}
+	}
+}
