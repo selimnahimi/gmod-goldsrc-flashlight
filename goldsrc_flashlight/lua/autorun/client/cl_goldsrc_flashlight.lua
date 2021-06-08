@@ -1,20 +1,18 @@
+-- ConVars
+local cvarMode = CreateClientConVar( "gsrc_flashlight_mode", "hl1", true, false)
+local cvarGrain = CreateClientConVar( "gsrc_flashlight_nv_grain", "1", true, false)
+local cvarSnap = CreateClientConVar( "gsrc_flashlight_snap", "1", true, false)
+
 local flashlightOn = false
-
-CreateClientConVar( "gsrc_flashlight_mode", "hl1", true, false)
-CreateClientConVar( "gsrc_flashlight_nv_grain", "1", true, false)
-CreateClientConVar( "gsrc_flashlight_snap", "1", true, false)
-
-local function IsEnabled()
-    return GetConVar("gsrc_flashlight_enabled"):GetBool()
-end
+local flashlightSize = 150
+local flashlightBrightness = 2
 
 local function IsNVG()
-    local value = GetConVar("gsrc_flashlight_mode"):GetString()
+    local value = cvarMode:GetString()
     if (value == "cs16" or value == "op4") then return true end
 
     return false
 end
-
 
 sounds = {
     ["cs16"] = {
@@ -32,13 +30,14 @@ sounds = {
 }
 
 net.Receive( "flashlightToggle", function()
-    if (!IsEnabled()) then return end
-
-    local mode = GetConVar("gsrc_flashlight_mode"):GetString()
+    local mode = cvarMode:GetString()
 
     local on = net.ReadBool()
 
     if (LocalPlayer():Alive() and on != flashlightOn) then
+        flashlightSize = net.ReadInt(10)
+        flashlightBrightness = net.ReadInt(10)
+
         local sound
         if (!flashlightOn) then
             sound = sounds[mode] or sounds["hl1"]
@@ -79,28 +78,24 @@ local function createFlashlight(pos, size, brightness)
     dlight.DieTime = CurTime() + 1
 end
 
-hook.Add( "Think", "Think_Lights!", function()
-    if (!IsEnabled()) then return end
-
+hook.Add( "Think", "GoldSrcFlashlightThink", function()
     if (!flashlightOn) then return end
 
     if (IsNVG()) then
         createFlashlight(LocalPlayer():EyePos(), 1000, 1)
     else
         local tr = traceSight()
-        local size = GetConVar("gsrc_flashlight_size"):GetInt()
-        local brightness = GetConVar("gsrc_flashlight_brightness"):GetFloat()
 
         local hitClass = tr.Entity:GetClass()
         local hitPos = tr.HitPos
 
-        if (GetConVar("gsrc_flashlight_snap"):GetBool()) then
+        if (cvarSnap:GetBool()) then
             if (hitClass != "worldspawn") then
                 hitPos = tr.Entity:GetPos() + tr.Entity:OBBCenter()
             end
         end
 
-        createFlashlight(hitPos, size, brightness)
+        createFlashlight(hitPos, flashlightSize, flashlightBrightness)
     end
 end )
 
@@ -117,13 +112,11 @@ local nvg_colors = {
 }
 
 hook.Add( "RenderScreenspaceEffects", "color_modify_example", function()
-    if (!IsEnabled()) then return end
-
     if (!flashlightOn) then return end
     if (IsNVG()) then
         DrawColorModify( nvg_colors )
 
-        if (GetConVar("gsrc_flashlight_nv_grain"):GetBool()) then
+        if (cvarGrain:GetBool()) then
             DrawMaterialOverlay( "gsrc/overlay/nv_grain", 0 )
         end
     end
